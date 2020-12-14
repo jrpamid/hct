@@ -1,0 +1,170 @@
+# default env if --set env=int|uat|prod not provided 
+env: dev
+
+name: "demo"
+
+# replicas
+replicaCount:
+   dev: 1
+   int: 1
+   uat: 2
+   prod: 2
+
+# Main container definiton
+containers:
+  image:
+    repository: nginx
+    pullPolicy: IfNotPresent
+    tag: ""
+    command: ""
+  
+# Init Container definition
+init_containers:
+  enabled: true
+  repository: "docker.io/library"
+  image: "busybox"
+  tag: "latest"
+  pullPolicy: "IfNotPresent"
+  command: ["echo `hostname`"]
+  args: [""]
+  env: {}
+   # - name: DEBUG
+   #   value: false
+
+# mounting any already existing secret resources
+# example - usage is common certs used across several apps and already created outside of this helm chart release
+k8s_secrets:
+  enabled: true
+  resources:
+  - name: truststore
+    mountPath: /opt/application/certs/truststore.jks
+    mountAs: file
+  - name: artifactory-creds
+    mountPath: /opt/application/artifactory.txt
+    mountAs: env
+
+# mainly:- credentils type of secret resources
+# creating and mounting of new secrets from resources folder if they exist and are automatically mounted
+# if enabled - then the certs/secrets must exist under resources/secrets/{int,uat,prod}
+# secret created as <env>-<app-name>-secrets
+secrets:
+  enabled: true 
+  mountPath: /opt/application/secrets
+
+# mainly:- certificates type of secret resources
+# app specific certs if can be dropped into  resources/certs 
+# secret created as <env>-<app-name>-certs
+certs:
+  enabled: true
+  mountPath: /opt/application/certs/app
+
+# app releated config files, env specific files under resources/config/{int,uat,prod}
+# configmap created as <env>-<app-name>-config
+config:
+  enabled: true
+  resources:
+   - name: resources/config/dbesb-config.properties
+     mountPath: /opt/application/config/dbesb-config.properties
+     mountAs: file
+   - name: resources/config/java-args.properties
+     mountPath: /opt/applciation/java-args.properties
+     mountAs: file
+   - name: resources/config/env-variables
+     mountPath: 
+     mountAs: env
+     
+monitoring:
+  enabled: false
+  config: 
+  - path: resources/monitoring/config
+    mountPath: /opt/applciation/monitoring/
+
+
+serviceAccount:
+  create: false
+  name: "sa-view"
+
+securityContext:
+  capabilities: {}
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: 
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  dev:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  int:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  uat:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  prod:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 
+    dev: 1
+    int: 1
+    uat: 1
+    prod: 1
+  maxReplicas:
+    dev: 1
+    int: 1
+    uat: 2
+    prod: 2
+  targetCPUUtilizationPercentage:
+    dev: 80
+    int: 80
+    uat: 75
+    prod: 75
+  targetMemoryUtilizationPercentage: 
+    dev: 80
+    int: 80
+    uat: 75
+    prod: 75
+
+# usually meant for specialized  workloads/extreme customization
+# may become complex using a single chart for such use-cases
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: {}
+podSecurityContext: {}
+imagePullSecrets: []

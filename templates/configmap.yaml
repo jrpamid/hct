@@ -1,0 +1,21 @@
+# .AsConfig works only for simple files. 
+# config files such as json (grafana dashboards) or yaml (promethues config files ) will fail using this method
+{{- $commonconfig := .Files.Glob "resources/config/*" }}
+{{- $path := printf "resources/config/%s/*" .Values.env }}
+{{- $envconfig := .Files.Glob $path }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.env }}-{{ include  "hct.name" . }}-configmap
+  labels:
+    {{- include "hct.labels" . | nindent 4 }}
+data:
+{{- if $commonconfig }}
+{{ ($commonconfig).AsConfig | indent 4 }}
+{{- end }}
+{{- if $envconfig }}
+{{ ($envconfig).AsConfig | indent 4 }}
+{{- end }}
+
+
+
