@@ -1,7 +1,7 @@
 # default env if --set env=int|uat|prod not provided 
 env: dev
 
-name: "demo"
+name: "helmdemo"
 
 # replicas
 replicaCount:
@@ -11,25 +11,26 @@ replicaCount:
    prod: 2
 
 # Main container definiton
-containers:
-  image:
-    repository: nginx
-    pullPolicy: IfNotPresent
-    tag: ""
-    command: ""
+image:
+  repository: docker.io/library
+  name: busybox
+  pullPolicy: IfNotPresent
+  tag: "latest"
   
 # Init Container definition
 init_containers:
-  enabled: true
-  repository: "docker.io/library"
-  image: "busybox"
+  enabled: false
+  repository: docker.io/library
+  image: busybox
   tag: "latest"
-  pullPolicy: "IfNotPresent"
-  command: ["echo `hostname`"]
-  args: [""]
-  env: {}
-   # - name: DEBUG
-   #   value: false
+  pullPolicy: IfNotPresent
+  command: ["/bin/ping"]
+  args: ["$(SERVER)","-c","$(COUNT)"]
+  env: |-
+    - name: COUNT
+      value: "10"
+    - name: SERVER
+      value: www.google.com
 
 # mounting any already existing secret resources
 # example - usage is common certs used across several apps and already created outside of this helm chart release
@@ -48,41 +49,57 @@ k8s_secrets:
 # if enabled - then the certs/secrets must exist under resources/secrets/{int,uat,prod}
 # secret created as <env>-<app-name>-secrets
 secrets:
-  enabled: true 
-  mountPath: /opt/application/secrets
+  enabled: true
+  srcPath: "resources/secrets"
+  mountPath: "/opt/application/secrets"
+#  resources:
+#  - name: dbesb-springboot-secret.properties
+#    mountPath: /opt/application/secrets/dbesb-secrets.properties
+#    mountAs: file
+#  - name: certs-creds.properties
+#    mountpath: ""
+#    mountAs: env
 
 # mainly:- certificates type of secret resources
 # app specific certs if can be dropped into  resources/certs 
 # secret created as <env>-<app-name>-certs
 certs:
   enabled: true
-  mountPath: /opt/application/certs/app
+  srcPath: "resources/certs"
+  mountPath: "/opt/application/certs"
+#  resources:
+#  - name: app-certs.jks
+#    mountPath: /opt/application/certs/app/app-certs.jks
+#    mountAs: file
 
 # app releated config files, env specific files under resources/config/{int,uat,prod}
 # configmap created as <env>-<app-name>-config
 config:
   enabled: true
-  resources:
-   - name: resources/config/dbesb-config.properties
-     mountPath: /opt/application/config/dbesb-config.properties
-     mountAs: file
-   - name: resources/config/java-args.properties
-     mountPath: /opt/applciation/java-args.properties
-     mountAs: file
-   - name: resources/config/env-variables
-     mountPath: 
-     mountAs: env
+  srcPath: "resources/config"
+  mountPath: "/opt/application/config"
+#  resources:
+#   - name: dbidbk.properties
+#     mountPath: /opt/application/config/dbidbk.properties
+#     mountAs: file
+#   - name: dbesb-java-args.properties
+#     mountPath: /opt/applciation/config/dbesb-java-args.properties
+#     mountAs: file
+#   - name: java-args-env
+#     mountPath: ""
+#     mountAs: env
      
 monitoring:
   enabled: false
-  config: 
+  srcPath: "resources/monitoring"
+  resources: 
   - path: resources/monitoring/config
     mountPath: /opt/applciation/monitoring/
 
 
 serviceAccount:
   create: false
-  name: "sa-view"
+  name: default
 
 securityContext:
   capabilities: {}
@@ -138,7 +155,7 @@ resources:
       memory: 128Mi
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 
     dev: 1
     int: 1

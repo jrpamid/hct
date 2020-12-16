@@ -1,21 +1,22 @@
-# .AsConfig works only for simple files. 
-# config files such as json (grafana dashboards) or yaml (promethues config files ) will fail using this method
-{{- $commonconfig := .Files.Glob "resources/config/*" }}
-{{- $path := printf "resources/config/%s/*" .Values.env }}
-{{- $envconfig := .Files.Glob $path }}
+{{- if .Values.config.enabled -}}
+{{- $env := .Values.env -}}
+{{- $basePath := .Values.config.srcPath -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.env }}-{{ include  "hct.name" . }}-configmap
+  name: {{ include  "configmap.name" . }}
   labels:
-    {{- include "hct.labels" . | nindent 4 }}
+    {{- include "app.labels" . | nindent 4 }}
 data:
-{{- if $commonconfig }}
-{{ ($commonconfig).AsConfig | indent 4 }}
+  {{- $root := . }}
+  {{- range $name, $bytes := .Files.Glob "$basePath/*" }}
+  {{ base $name }}: |-
+{{ $root.Files.Get $name | indent 6 }}
+  {{- end -}}
+  {{- $root := . }}
+  {{- range .Values.config.resources }}
+  {{ .name }}: |-
+  {{ $path := printf "%s/%s/%s" $basePath $env .name }}
+{{ $root.Files.Get $path | indent 6 }}
+  {{- end -}}
 {{- end }}
-{{- if $envconfig }}
-{{ ($envconfig).AsConfig | indent 4 }}
-{{- end }}
-
-
-

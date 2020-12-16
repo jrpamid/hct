@@ -1,21 +1,77 @@
-1. Get the application URL by running these commands:
-{{- if .Values.ingress.enabled }}
-{{- range $host := .Values.ingress.hosts }}
-  {{- range .paths }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ . }}
-  {{- end }}
+
+volumeMounts:
+{{- if .Values.config.enabled }}
+  - name: config-volume
+    mountPath: /opt/application/config
 {{- end }}
-{{- else if contains "NodePort" .Values.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "hct.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "hct.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "hct.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-{{- else if contains "ClusterIP" .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "hct.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
+{{- if .Values.certs.enabled }}
+  - name: certs-volume
+    mountPath: /opt/application/certs
 {{- end }}
+{{- if .Values.secrets.enabled }}
+  - name: secrets-volume
+    mountPath: /opt/application/secrets
+{{- end }}
+
+volumes:
+{{- if .Values.config.enabled }}
+  - name: config-volume
+    configMap:
+      name: {{ include "configmap.name" .}}
+      items: 
+      {{- range .Values.config.resources }}
+      {{- if eq .mountAs "file" }}
+        - key: {{ .name }}
+          path: "{{ .name }}" 
+      {{- end }}
+      {{- end }}
+{{- end -}}
+{{- if .Values.secrets.enabled }}
+  - name: secrets-volume
+    configMap:
+      name: {{ include "secrets.creds.name" .}}
+      items: 
+      {{- range .Values.secrets.resources }}
+      {{- if eq .mountAs "file" }}
+        - key: {{ .name }}
+          path: "{{ .name }}" 
+      {{- end }}
+      {{- end }}
+{{- end -}}
+{{- if .Values.certs.enabled }}
+  - name: certs-volume
+    configMap:
+      name: {{ include "secrets.certs.name" .}}
+      items: 
+      {{- range .Values.certs.resources }}
+      {{- if eq .mountAs "file" }}
+        - key: {{ .name }}
+          path: "{{ .name }}" 
+      {{- end }}
+      {{- end }}
+{{- end -}}
+
+{{- if .Values.config.enabled }}
+{{- range .Values.config.resources }}
+{{- if eq .mountAs "file" }}
+ - name: {{ .name }}
+   mountPath: {{ .mountPath }}   
+{{- end }}
+{{- end }}
+{{- end }}
+{{ if .Values.secrets.enabled }}
+{{- range .Values.secrets.resources }}
+{{- if eq .mountAs "file" }}
+ - name: {{ .name }}
+   mountPath: {{ .mountPath }}   
+{{- end }}
+{{- end }}
+{{ end }}
+{{ if .Values.certs.enabled }}
+{{- range .Values.secrets.resources }}
+{{- if eq .mountAs "file" }}
+ - name: {{ .name }}
+   mountPath: {{ .mountPath }}   
+{{- end }}
+{{- end }}
+{{ end }}

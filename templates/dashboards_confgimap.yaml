@@ -7,7 +7,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.env }}-{{ include  "hct.name" . }}-monitoring-dashboards-cm
   labels:
-    {{- include "hct.labels" . | nindent 4 }}
+    {{- include "app.labels" . | nindent 4 }}
 data:
   {{- $root := . }}
   {{ range $name, $bytes := .Files.Glob "resources/monitoring/dashboards/*" }}
