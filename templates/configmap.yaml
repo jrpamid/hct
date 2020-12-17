@@ -7,24 +7,24 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
 data:
-  {{- $root := . }}
-  {{- $path := printf "%s/*" $basePath }}
-  {{- range $name, $bytes := .Files.Glob $path }}
+{{- $root := . }}
+{{- $path := printf "%s/*" $basePath }}
+{{- range $name, $bytes := .Files.Glob $path }}
   {{ base $name }}: |-
 {{ $root.Files.Get $name | indent 6 }}
-  {{- end -}}
-  {{- $root := . }}
-  {{- if .Values.config.resources -}}
-  {{- range .Values.config.resources }}
-{{ .name }}: |-
+{{- end -}}
+{{- $root := . }}
+{{- if .Values.config.resources -}}
+{{- range .Values.config.resources }}
+  {{ .name }}: |-
 {{ $path := printf "%s/%s/%s" $basePath $.Values.env .name }}
 {{ $root.Files.Get $path | indent 6 }}
-  {{- end -}}
-  {{- else -}}
+{{- end -}}
+{{- else -}}
 {{ $path := printf "%s/%s/*" $basePath $.Values.env }}
 {{- range $name, $bytes := .Files.Glob $path }}
   {{ base $name }}: |-
 {{ $root.Files.Get $name | indent 6 }}
-  {{- end }}
-  {{- end }}
+{{- end }}
+{{- end }}
 {{- end }}

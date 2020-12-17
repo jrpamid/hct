@@ -61,7 +61,7 @@ spec:
           volumeMounts:
             {{- include "volumeMounts" . | nindent 10 }}
       volumes:
-        {{- include "volumes" . | nindent 8}}
+        {{- include "volumes" . | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
