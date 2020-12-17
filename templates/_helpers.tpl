@@ -109,7 +109,7 @@ Helper  template functions for environmental variables
       {{- range .Values.config.resources }}
       {{- if eq .mountAs "file" }}
         - key: {{ .name }}
-          path: "{{ .name }}" 
+          path: {{ .name | quote }}
       {{- end }}
       {{- end }}
       {{- end }}
@@ -123,7 +123,7 @@ Helper  template functions for environmental variables
       {{- range .Values.secrets.resources }}
       {{- if eq .mountAs "file" }}
         - key: {{ .name }}
-          path: "{{ .name }}" 
+          path: {{ .name | quote }}
       {{- end }}
       {{- end }}
       {{- end  }}
@@ -137,7 +137,7 @@ Helper  template functions for environmental variables
       {{- range .Values.certs.resources }}
       {{- if eq .mountAs "file" }}
         - key: {{ .name }}
-          path: "{{ .name }}" 
+          path: {{ .name | quote }}
       {{- end }}
       {{- end }}
       {{- end }}

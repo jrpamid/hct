@@ -1,5 +1,4 @@
 {{- if .Values.config.enabled -}}
-{{- $env := .Values.env -}}
 {{- $basePath := .Values.config.srcPath -}}
 apiVersion: v1
 kind: ConfigMap
@@ -9,14 +8,23 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
 data:
   {{- $root := . }}
-  {{- range $name, $bytes := .Files.Glob "$basePath/*" }}
+  {{- $path := printf "%s/*" $basePath }}
+  {{- range $name, $bytes := .Files.Glob $path }}
   {{ base $name }}: |-
 {{ $root.Files.Get $name | indent 6 }}
   {{- end -}}
   {{- $root := . }}
+  {{- if .Values.config.resources -}}
   {{- range .Values.config.resources }}
-  {{ .name }}: |-
-  {{ $path := printf "%s/%s/%s" $basePath $env .name }}
+{{ .name }}: |-
+{{ $path := printf "%s/%s/%s" $basePath $.Values.env .name }}
 {{ $root.Files.Get $path | indent 6 }}
   {{- end -}}
+  {{- else -}}
+{{ $path := printf "%s/%s/*" $basePath $.Values.env }}
+{{- range $name, $bytes := .Files.Glob $path }}
+  {{ base $name }}: |-
+{{ $root.Files.Get $name | indent 6 }}
+  {{- end }}
+  {{- end }}
 {{- end }}
