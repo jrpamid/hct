@@ -24,24 +24,23 @@ init_containers:
   image: busybox
   tag: "latest"
   pullPolicy: IfNotPresent
-  command: ["/bin/ping"]
-  args: ["$(SERVER)","-c","$(COUNT)"]
+  command: ["echo"]
+  args: ["$(SERVER)","$(COUNT)"]
   env: |-
-    - name: COUNT
+    - name: "COUNT"
       value: "10"
-    - name: SERVER
+    - name: "SERVER"
       value: www.google.com
 
 # mounting any already existing secret resources
 # example - usage is common certs used across several apps and already created outside of this helm chart release
 k8s_secrets:
-  enabled: true
+  enabled: false
+  mountpath: "/opt/appllication/secrets/"
   resources:
   - name: truststore
-    mountPath: /opt/application/certs/truststore.jks
     mountAs: file
   - name: artifactory-creds
-    mountPath: /opt/application/artifactory.txt
     mountAs: env
 
 # mainly:- credentils type of secret resources
@@ -54,25 +53,21 @@ secrets:
   mountPath: "/opt/application/secrets"
   resources:
   - name: dbesb-springboot-secret.properties
-    mountPath: /opt/application/secrets/dbesb-secrets.properties
     mountAs: file
   - name: certs-creds.properties
-    mountpath: ""
     mountAs: env
 
 # mainly:- certificates type of secret resources
 # app specific certs if can be dropped into  resources/certs 
 # secret created as <env>-<app-name>-certs
 certs:
-  enabled: true
+  enabled: false
   srcPath: "resources/certs"
   mountPath: "/opt/application/certs"
   resources:
   - name: jrpam
-    mountPath: /opt/application/certs/jrpam
     mountAs: file
   - name: jrpam.pub
-    mountPath: /opt/application/certs/jrpam.pub
     mountAs: file
 
 # app releated config files, env specific files under resources/config/{int,uat,prod}
@@ -83,13 +78,10 @@ config:
   mountPath: "/opt/application/config"
   resources:
    - name: dbidbk.properties
-     mountPath: /opt/application/config/dbidbk.properties
      mountAs: file
    - name: dbesb-java-args.properties
-     mountPath: /opt/applciation/config/dbesb-java-args.properties
      mountAs: file
    - name: java-args-env
-     mountPath: ""
      mountAs: env
      
 monitoring:

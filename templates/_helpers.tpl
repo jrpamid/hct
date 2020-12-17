@@ -170,3 +170,22 @@ Helper  template functions for environmental variables
 {{- define "secrets.creds.name" -}}
 {{ .Values.env }}-{{ include  "app.name" . }}-secrets-creds
 {{- end -}}
+
+{{- define "env-vars" -}}
+{{- if .Values.config.enabled -}}
+{{- range .Values.config.resources -}}
+{{- if eq .mountAs "env" -}}
+- configMapRef:
+    name: {{ .name }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{ if .Values.secrets.enabled }}
+{{ range  .Values.secrets.resources }}
+{{ if eq .mountAs "env" }}
+- secretRef:
+    name: {{ .name }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{- end }}
