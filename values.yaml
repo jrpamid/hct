@@ -13,7 +13,7 @@ replicaCount:
 # Main container definiton
 image:
   repository: docker.io/library
-  name: busybox
+  name: nginx
   pullPolicy: IfNotPresent
   tag: "latest"
   
@@ -101,11 +101,11 @@ serviceAccount:
   create: false
   name: default
 
-securityContext:
-  capabilities: {}
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1000
+securityContext: {}
+#  capabilities: {}
+#  readOnlyRootFilesystem: false
+#  runAsNonRoot: true
+#  runAsUser: 1000
 
 service:
   type: ClusterIP
