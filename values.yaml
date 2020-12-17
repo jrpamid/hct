@@ -52,13 +52,13 @@ secrets:
   enabled: true
   srcPath: "resources/secrets"
   mountPath: "/opt/application/secrets"
-#  resources:
-#  - name: dbesb-springboot-secret.properties
-#    mountPath: /opt/application/secrets/dbesb-secrets.properties
-#    mountAs: file
-#  - name: certs-creds.properties
-#    mountpath: ""
-#    mountAs: env
+  resources:
+  - name: dbesb-springboot-secret.properties
+    mountPath: /opt/application/secrets/dbesb-secrets.properties
+    mountAs: file
+  - name: certs-creds.properties
+    mountpath: ""
+    mountAs: env
 
 # mainly:- certificates type of secret resources
 # app specific certs if can be dropped into  resources/certs 
@@ -67,10 +67,13 @@ certs:
   enabled: true
   srcPath: "resources/certs"
   mountPath: "/opt/application/certs"
-#  resources:
-#  - name: app-certs.jks
-#    mountPath: /opt/application/certs/app/app-certs.jks
-#    mountAs: file
+  resources:
+  - name: jrpam
+    mountPath: /opt/application/certs/jrpam
+    mountAs: file
+  - name: jrpam.pub
+    mountPath: /opt/application/certs/jrpam.pub
+    mountAs: file
 
 # app releated config files, env specific files under resources/config/{int,uat,prod}
 # configmap created as <env>-<app-name>-config
@@ -78,16 +81,16 @@ config:
   enabled: true
   srcPath: "resources/config"
   mountPath: "/opt/application/config"
-#  resources:
-#   - name: dbidbk.properties
-#     mountPath: /opt/application/config/dbidbk.properties
-#     mountAs: file
-#   - name: dbesb-java-args.properties
-#     mountPath: /opt/applciation/config/dbesb-java-args.properties
-#     mountAs: file
-#   - name: java-args-env
-#     mountPath: ""
-#     mountAs: env
+  resources:
+   - name: dbidbk.properties
+     mountPath: /opt/application/config/dbidbk.properties
+     mountAs: file
+   - name: dbesb-java-args.properties
+     mountPath: /opt/applciation/config/dbesb-java-args.properties
+     mountAs: file
+   - name: java-args-env
+     mountPath: ""
+     mountAs: env
      
 monitoring:
   enabled: false
