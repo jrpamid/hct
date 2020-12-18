@@ -25,10 +25,8 @@ data:
 {{- else -}}
 {{ $path := printf "%s/%s/*" $basePath $.Values.env }}
 {{- range $name, $bytes := .Files.Glob $path }}
-  {{ if eq .mountAs "file" }}
   {{ base $name }}: |-
 {{ $root.Files.Get $name | indent 6 }}
-  {{ end }}
 {{- end }}
 {{- end }}
 {{- end }}

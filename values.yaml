@@ -35,8 +35,8 @@ init_containers:
 # mounting any already existing secret resources
 # example - usage is common certs used across several apps and already created outside of this helm chart release
 k8s_secrets:
-  enabled: false
-  mountpath: "/opt/appllication/secrets/"
+  enabled: true
+  mountPath: "/opt/application/secrets"
   resources:
   - name: truststore
     mountAs: file
@@ -51,24 +51,24 @@ secrets:
   enabled: true
   srcPath: "resources/secrets"
   mountPath: "/opt/application/secrets"
-  resources:
-  - name: java-springboot-app-secrets.properties
-    mountAs: file
-  - name: java-app-creds-env
-    mountAs: env
+#  resources:
+#  - name: java-springboot-app-secrets.properties
+#    mountAs: file
+#  - name: java-app-creds-env
+#    mountAs: env
 
 # mainly:- certificates type of secret resources
 # app specific certs if can be dropped into  resources/certs 
 # secret created as <env>-<app-name>-certs
 certs:
-  enabled: false
+  enabled: true
   srcPath: "resources/certs"
   mountPath: "/opt/application/certs"
-  resources:
-  - name: jrpam
-    mountAs: file
-  - name: jrpam.pub
-    mountAs: file
+#  resources:
+#  - name: jrpam
+#    mountAs: file
+#  - name: jrpam.pub
+#    mountAs: file
 
 # app releated config files, env specific files under resources/config/{int,uat,prod}
 # configmap created as <env>-<app-name>-config
@@ -76,13 +76,13 @@ config:
   enabled: true
   srcPath: "resources/config"
   mountPath: "/opt/application/config"
-  resources:
-   - name: java-springboot-app.properties
-     mountAs: file
-   - name: esb.properties
-     mountAs: file
-   - name: java-springboot-app-env
-     mountAs: env
+#  resources:
+#   - name: java-springboot-app.properties
+#     mountAs: file
+#   - name: esb.properties
+#     mountAs: file
+#   - name: java-springboot-app-env
+#     mountAs: env
      
 monitoring:
   enabled: false
