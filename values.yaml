@@ -1,7 +1,7 @@
 # default env if --set env=int|uat|prod not provided 
 env: dev
 
-name: "helmdemo"
+name: helmdemo
 
 # replicas
 replicaCount:
@@ -52,9 +52,9 @@ secrets:
   srcPath: "resources/secrets"
   mountPath: "/opt/application/secrets"
   resources:
-  - name: dbesb-springboot-secret.properties
+  - name: java-springboot-app-secrets.properties
     mountAs: file
-  - name: certs-creds.properties
+  - name: java-app-creds-env
     mountAs: env
 
 # mainly:- certificates type of secret resources
@@ -77,11 +77,11 @@ config:
   srcPath: "resources/config"
   mountPath: "/opt/application/config"
   resources:
-   - name: dbidbk.properties
+   - name: java-springboot-app.properties
      mountAs: file
-   - name: dbesb-java-args.properties
+   - name: esb.properties
      mountAs: file
-   - name: java-args-env
+   - name: java-springboot-app-env
      mountAs: env
      
 monitoring:
@@ -173,7 +173,7 @@ autoscaling:
     prod: 75
 
 # usually meant for specialized  workloads/extreme customization
-# may become complex using a single chart for such use-cases
+# may become complex using a generalized chart for such use-cases
 nodeSelector: {}
 tolerations: []
 affinity: {}
