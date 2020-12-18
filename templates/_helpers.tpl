@@ -127,6 +127,14 @@ Helper  template functions for environmental variables
       {{- end }}
       {{- end }}
       {{- end  }}
+    {{- if and .Values.k8s_secrets.enabled .Values.k8s_secrets.resources }}
+    secret:
+      {{- range .Values.k8s_secrets.resources }}
+      {{- if eq .mountAs "file" }}
+      secretName: {{ .name }}
+      {{- end }}
+      {{- end }}
+      {{- end -}}
 {{- end -}}
 {{- if .Values.certs.enabled }}
   - name: certs-volume
@@ -187,6 +195,14 @@ Helper  template functions for environmental variables
 {{ if eq .mountAs "env" }}
 - secretRef:
     name: {{ $name }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ if .Values.k8s_secrets.enabled }}
+{{ range  .Values.k8s_secrets.resources }}
+{{ if eq .mountAs "env" }}
+- secretRef:
+    name: {{ .name }}
 {{ end }}
 {{ end }}
 {{ end }}
