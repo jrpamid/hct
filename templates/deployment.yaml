@@ -41,9 +41,11 @@ spec:
       containers:
         - name: {{ include "app.name" .}}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+          {{- include "env-vars"  . | nindent 12 }}
           ports:
             - name: http
               containerPort: 80

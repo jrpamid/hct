@@ -1,0 +1,17 @@
+{{- if .Values.config.enabled -}}
+{{- $basePath := .Values.config.srcPath -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include  "configmap.name" . }}-env
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+{{ $root := . }}
+{{ range .Values.config.resources }}
+{{ if eq .mountAs "env" }}
+{{ $path := printf "%s/%s/%s" $basePath $.Values.env .name }}
+{{ $root.Files.Get $path | indent 6 }}
+{{ end }}
+{{ end }}
+{{ end }}

@@ -1,0 +1,14 @@
+XMX: ""
+XMS: ""
+JAVA_GC_ARGS: ""
+JAVA_VM_ARGS: ""
+JAVA_CLASSPATH: ""
+JAVA_EXTRA_CLASSPATH: ""
+JAVA_MAIN_JAR: ""
+JAVA_PRG_ARGS: ""
+JOLOKIA_ENABLED: "false"
+DEBUG: "false"
+JVM_ARGS: "-Dcom.sun.management.jmxremote \
+    -Dcom.sun.management.jmxremote.authenticate=false \
+    -Dcom.sun.management.jmxremote.ssl=false \
+    -javaagent:/prometheus/agent/jmx_prometheus_javaagent-0.12.1-SNAPSHOT.jar=9161:/opt/application/config/prometheus_jmx_config.yml"

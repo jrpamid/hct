@@ -1,7 +1,7 @@
 # default env if --set env=int|uat|prod not provided 
 env: dev
 
-name: "helmdemo"
+name: helmdemo
 
 # replicas
 replicaCount:
@@ -24,24 +24,23 @@ init_containers:
   image: busybox
   tag: "latest"
   pullPolicy: IfNotPresent
-  command: ["/bin/ping"]
-  args: ["$(SERVER)","-c","$(COUNT)"]
+  command: ["echo"]
+  args: ["$(SERVER)","$(COUNT)"]
   env: |-
-    - name: COUNT
+    - name: "COUNT"
       value: "10"
-    - name: SERVER
+    - name: "SERVER"
       value: www.google.com
 
 # mounting any already existing secret resources
 # example - usage is common certs used across several apps and already created outside of this helm chart release
 k8s_secrets:
-  enabled: true
+  enabled: false
+  mountpath: "/opt/appllication/secrets/"
   resources:
   - name: truststore
-    mountPath: /opt/application/certs/truststore.jks
     mountAs: file
   - name: artifactory-creds
-    mountPath: /opt/application/artifactory.txt
     mountAs: env
 
 # mainly:- credentils type of secret resources
@@ -53,26 +52,22 @@ secrets:
   srcPath: "resources/secrets"
   mountPath: "/opt/application/secrets"
   resources:
-  - name: dbesb-springboot-secret.properties
-    mountPath: /opt/application/secrets/dbesb-secrets.properties
+  - name: java-springboot-app-secrets.properties
     mountAs: file
-  - name: certs-creds.properties
-    mountpath: ""
+  - name: java-app-creds-env
     mountAs: env
 
 # mainly:- certificates type of secret resources
 # app specific certs if can be dropped into  resources/certs 
 # secret created as <env>-<app-name>-certs
 certs:
-  enabled: true
+  enabled: false
   srcPath: "resources/certs"
   mountPath: "/opt/application/certs"
   resources:
   - name: jrpam
-    mountPath: /opt/application/certs/jrpam
     mountAs: file
   - name: jrpam.pub
-    mountPath: /opt/application/certs/jrpam.pub
     mountAs: file
 
 # app releated config files, env specific files under resources/config/{int,uat,prod}
@@ -82,14 +77,11 @@ config:
   srcPath: "resources/config"
   mountPath: "/opt/application/config"
   resources:
-   - name: dbidbk.properties
-     mountPath: /opt/application/config/dbidbk.properties
+   - name: java-springboot-app.properties
      mountAs: file
-   - name: dbesb-java-args.properties
-     mountPath: /opt/applciation/config/dbesb-java-args.properties
+   - name: esb.properties
      mountAs: file
-   - name: java-args-env
-     mountPath: ""
+   - name: java-springboot-app-env
      mountAs: env
      
 monitoring:
@@ -181,7 +173,7 @@ autoscaling:
     prod: 75
 
 # usually meant for specialized  workloads/extreme customization
-# may become complex using a single chart for such use-cases
+# may become complex using a generalized chart for such use-cases
 nodeSelector: {}
 tolerations: []
 affinity: {}

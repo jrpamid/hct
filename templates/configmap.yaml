@@ -16,15 +16,19 @@ data:
 {{- $root := . }}
 {{- if .Values.config.resources -}}
 {{- range .Values.config.resources }}
+  {{ if eq .mountAs "file" }}
   {{ .name }}: |-
-{{ $path := printf "%s/%s/%s" $basePath $.Values.env .name }}
+  {{ $path := printf "%s/%s/%s" $basePath $.Values.env .name }}
 {{ $root.Files.Get $path | indent 6 }}
+  {{- end -}}
 {{- end -}}
 {{- else -}}
 {{ $path := printf "%s/%s/*" $basePath $.Values.env }}
 {{- range $name, $bytes := .Files.Glob $path }}
+  {{ if eq .mountAs "file" }}
   {{ base $name }}: |-
 {{ $root.Files.Get $name | indent 6 }}
+  {{ end }}
 {{- end }}
 {{- end }}
 {{- end }}
