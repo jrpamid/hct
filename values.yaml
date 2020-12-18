@@ -41,7 +41,7 @@ k8s_secrets:
   - name: truststore
     mountAs: file
   - name: artifactory-creds
-    mountAs: env
+    mountAs: file
 
 # mainly:- credentils type of secret resources
 # creating and mounting of new secrets from resources folder if they exist and are automatically mounted
